@@ -7,12 +7,11 @@ spec:
   selector:
     app: springboot-app
   ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 8080
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
 
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,13 +23,21 @@ spec:
     matchLabels:
       app: springboot-app
   replicas: 4
+  minReadySeconds: 5
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
   template:
     metadata:
       labels:
         app: springboot-app
+      annotations:
+        kubernetes.io/change-cause: "Update to container image version - from 3 to 2"
     spec:
       containers:
-      - name: springboot-app
-        image: yourrepo/spring-boot-app
-        ports:
-        - containerPort: 8080
+        - name: springboot-app
+          image: akiff07/lab3:latest
+          ports:
+            - containerPort: 8080
